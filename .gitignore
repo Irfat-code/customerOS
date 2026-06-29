@@ -22,3 +22,7 @@ airflow/airflow.db
 
 # Docker
 *.log
+
+# Generated data files (too large for git)
+data/processed/
+data/raw/
