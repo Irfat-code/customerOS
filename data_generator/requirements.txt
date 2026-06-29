@@ -1,0 +1,5 @@
+faker==19.13.0
+pandas==2.1.4
+psycopg2-binary==2.9.9
+python-dotenv==1.0.0
+numpy==1.26.2
