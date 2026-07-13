@@ -33,6 +33,7 @@ x-airflow-common: &airflow-common
 services:
   raw_db:
     image: postgres:15
+    restart: unless-stopped
     environment:
       POSTGRES_DB: customeros_raw
       POSTGRES_USER: ${RAW_USER}
@@ -49,6 +50,7 @@ services:
 
   warehouse_db:
     image: postgres:15
+    restart: unless-stopped
     environment:
       POSTGRES_DB: customeros_warehouse
       POSTGRES_USER: ${WH_USER}
@@ -64,6 +66,7 @@ services:
 
   airflow_db:
     image: postgres:15
+    restart: unless-stopped
     environment:
       POSTGRES_DB: airflow
       POSTGRES_USER: airflow
@@ -77,6 +80,7 @@ services:
 
   airflow-init:
     <<: *airflow-common
+    restart: "no"
     command: >
       bash -c "airflow db migrate &&
       airflow users create
@@ -89,6 +93,7 @@ services:
 
   airflow-webserver:
     <<: *airflow-common
+    restart: unless-stopped
     ports:
       - "127.0.0.1:8080:8080"
     command: webserver
@@ -98,6 +103,7 @@ services:
 
   airflow-scheduler:
     <<: *airflow-common
+    restart: unless-stopped
     command: scheduler
     depends_on:
       airflow_db:
