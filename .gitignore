@@ -1,5 +1,6 @@
 # Environment
 .env
+.env.local
 
 # Python
 __pycache__/
@@ -15,6 +16,7 @@ dbt_customeros/profiles.yml
 
 # Data files (too large for git)
 data/raw/
+data/processed/
 
 # Airflow
 airflow/logs/
@@ -22,7 +24,3 @@ airflow/airflow.db
 
 # Docker
 *.log
-
-# Generated data files (too large for git)
-data/processed/
-data/raw/
