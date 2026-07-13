@@ -4,13 +4,18 @@ USER root
 RUN apt-get update -q && apt-get install -y git -q
 
 USER airflow
+
+# Install dbt first with pinned versions
 RUN pip install --no-cache-dir \
-    dbt-core \
-    dbt-postgres \
-    dlt[postgres] \
-    sqlalchemy \
-    faker \
-    pandas \
-    psycopg2-binary \
-    python-dotenv \
-    apache-airflow-providers-docker
+    "dbt-core==1.7.17" \
+    "dbt-postgres==1.7.17"
+
+# Install remaining packages
+RUN pip install --no-cache-dir \
+    "dlt[postgres]==0.4.12" \
+    "sqlalchemy==1.4.52" \
+    "faker==19.13.0" \
+    "pandas==2.1.4" \
+    "psycopg2-binary==2.9.9" \
+    "python-dotenv==1.0.0" \
+    "apache-airflow-providers-docker==3.12.0"
