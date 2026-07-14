@@ -1,0 +1,30 @@
+name: 'customer_os'
+version: '1.0.0'
+config-version: 2
+
+profile: 'customer_os'
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+snapshot-paths: ["snapshots"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  customer_os:
+    staging:
+      +materialized: view
+      +schema: staging
+    customer_360:
+      +materialized: table
+      +schema: customer_360
+    intelligence:
+      +materialized: table
+      +schema: intelligence
+    marts:
+      +materialized: table
+      +schema: marts

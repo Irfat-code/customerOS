@@ -1,0 +1,31 @@
+version: 2
+
+sources:
+  - name: saas_crm
+    schema: saas_crm
+    tables:
+      - name: customers
+      - name: accounts
+      - name: contacts
+
+  - name: saas_product
+    schema: saas_product
+    tables:
+      - name: sessions
+      - name: feature_usage
+
+  - name: saas_billing
+    schema: saas_billing
+    tables:
+      - name: invoices
+      - name: payments
+
+  - name: saas_support
+    schema: saas_support
+    tables:
+      - name: tickets
+
+  - name: saas_nps
+    schema: saas_nps
+    tables:
+      - name: responses

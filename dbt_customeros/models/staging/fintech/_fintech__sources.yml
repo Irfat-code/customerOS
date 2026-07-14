@@ -1,0 +1,24 @@
+version: 2
+
+sources:
+  - name: fintech_accounts
+    schema: fintech_accounts
+    tables:
+      - name: customers
+      - name: accounts
+
+  - name: fintech_cards
+    schema: fintech_cards
+    tables:
+      - name: cards
+
+  - name: fintech_loans
+    schema: fintech_loans
+    tables:
+      - name: loans
+      - name: repayments
+
+  - name: fintech_transactions
+    schema: fintech_transactions
+    tables:
+      - name: transactions
