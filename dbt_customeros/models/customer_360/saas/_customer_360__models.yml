@@ -1,0 +1,59 @@
+version: 2
+
+models:
+  - name: fct_customer_health
+    description: >
+      Composite customer health score for SaaS customers, combining engagement,
+      commercial, support, and sentiment signals into a single 0-100 score and
+      a three-tier classification (Healthy / At Risk / Critical).
+
+      Pillar weights (engagement 20%, commercial 10%, support 35%, sentiment 35%)
+      were set based on validated churn-gap analysis, not assumed defaults —
+      support and sentiment showed the largest score gap between churned and
+      active customers (~30-34 points) and were weighted accordingly, while
+      engagement and commercial showed weaker separation (~4-6 points).
+
+      Tier thresholds (Critical < 50, At Risk 50-54.9, Healthy >= 55) were derived
+      from a histogram of health_score against actual churn outcomes, not chosen
+      as round numbers. Churn rate drops sharply from 15.1% to 1.8% at the 55
+      boundary and stays near-zero above it; below 50, churn rate climbs from
+      33% up to 100% in the lowest bucket.
+
+      Validation against ground truth: Critical tier (231 customers) captures
+      84.5% of all actual churners at a 54.1% churn rate, vs a 14.8% base rate
+      across the full customer base.
+
+    columns:
+      - name: customer_id
+        description: Primary key, references stg_saas__customers.
+        tests:
+          - unique
+          - not_null
+
+      - name: health_score
+        description: Weighted composite score, 0-100. Higher is healthier.
+        tests:
+          - not_null
+
+      - name: health_tier
+        description: Categorical risk tier derived from health_score.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Healthy', 'At Risk', 'Critical']
+
+      - name: engagement_score
+        tests:
+          - not_null
+
+      - name: commercial_score
+        tests:
+          - not_null
+
+      - name: support_score
+        tests:
+          - not_null
+
+      - name: sentiment_score
+        tests:
+          - not_null
