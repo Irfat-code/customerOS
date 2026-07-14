@@ -1,0 +1,76 @@
+version: 2
+
+models:
+  - name: stg_saas__customers
+    columns:
+      - name: customer_id
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_saas__accounts
+    columns:
+      - name: account_id
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_saas__customers')
+              field: customer_id
+
+  - name: stg_saas__contacts
+    columns:
+      - name: contact_id
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        tests:
+          - relationships:
+              to: ref('stg_saas__customers')
+              field: customer_id
+
+  - name: stg_saas__invoices
+    columns:
+      - name: invoice_id
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        tests:
+          - relationships:
+              to: ref('stg_saas__customers')
+              field: customer_id
+
+  - name: stg_saas__payments
+    columns:
+      - name: payment_id
+        tests:
+          - unique
+          - not_null
+      - name: invoice_id
+        tests:
+          - relationships:
+              to: ref('stg_saas__invoices')
+              field: invoice_id
+
+  - name: stg_saas__tickets
+    columns:
+      - name: ticket_id
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_saas__nps_responses
+    columns:
+      - name: response_id
+        tests:
+          - unique
+          - not_null
+      - name: score
+        tests:
+          - accepted_values:
+              values: [0,1,2,3,4,5,6,7,8,9,10]

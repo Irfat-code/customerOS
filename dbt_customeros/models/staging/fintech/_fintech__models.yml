@@ -1,0 +1,65 @@
+version: 2
+
+models:
+  - name: stg_fintech__customers
+    columns:
+      - name: customer_id
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_fintech__accounts
+    columns:
+      - name: account_id
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_fintech__customers')
+              field: customer_id
+
+  - name: stg_fintech__cards
+    columns:
+      - name: card_id
+        tests:
+          - unique
+          - not_null
+      - name: account_id
+        tests:
+          - relationships:
+              to: ref('stg_fintech__accounts')
+              field: account_id
+
+  - name: stg_fintech__loans
+    columns:
+      - name: loan_id
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        tests:
+          - relationships:
+              to: ref('stg_fintech__customers')
+              field: customer_id
+
+  - name: stg_fintech__repayments
+    columns:
+      - name: repayment_id
+        tests:
+          - unique
+          - not_null
+      - name: loan_id
+        tests:
+          - relationships:
+              to: ref('stg_fintech__loans')
+              field: loan_id
+
+  - name: stg_fintech__transactions
+    columns:
+      - name: transaction_id
+        tests:
+          - unique
+          - not_null
