@@ -1,0 +1,69 @@
+version: 2
+
+models:
+  - name: fct_customer_risk
+    description: >
+      Composite financial risk score for fintech customers, combining repayment
+      behavior and account activity into a single 0-100 score and a three-tier
+      classification (Healthy / At Risk / Critical).
+
+      Validated against is_active initially, but found no relationship (avg
+      scores nearly identical between active/inactive, no cliff in histogram
+      buckets) — is_active in this dataset does not correlate with behavioral
+      signals and was dropped as a validation target. Repivoted to validate
+      against has_repayment_problem (missed_repayments > 0 OR defaulted_loans > 0),
+      a direct financial-fact outcome rather than a proxy.
+
+      KYC status was tested as a scoring input and excluded: every loan-holding
+      customer in this dataset is already KYC-verified (avg_kyc_score = 100.0
+      across all loan holders), so it has zero discriminating power within the
+      population this score needs to differentiate. kyc_score is retained as a
+      visible column for compliance reporting, not as a weighted input.
+
+      Weights (repayment 80%, activity 20%) reflect that repayment_health_score
+      is built directly from ground-truth payment behavior, while activity
+      showed only a weak (~4 point) gap and KYC showed none.
+
+      Coverage caveat: only ~23% of customers (453/2000) have any loan history.
+      Customers with no loans default to repayment_health_score = 70 (neutral-safe)
+      since there is no adverse behavior to penalize — this score is most
+      meaningful for loan-holding customers.
+
+      Tier thresholds (Critical < 45, At Risk 45-54.9, Healthy >= 55) were set
+      from a histogram against has_repayment_problem: problem rate is 83-100%
+      below 55 and drops to under 3.5% at and above it. The 45/55 split within
+      the below-55 range is less sharp (all buckets there run consistently high-
+      risk) so "At Risk" here means "still high-risk, marginally less extreme"
+      rather than a genuinely safer middle tier.
+
+    columns:
+      - name: customer_id
+        description: Primary key, references stg_fintech__customers.
+        tests:
+          - unique
+          - not_null
+
+      - name: risk_health_score
+        description: Weighted composite score, 0-100. Higher is healthier.
+        tests:
+          - not_null
+
+      - name: risk_tier
+        description: Categorical risk tier derived from risk_health_score.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Healthy', 'At Risk', 'Critical']
+
+      - name: repayment_health_score
+        tests:
+          - not_null
+
+      - name: activity_score
+        tests:
+          - not_null
+
+      - name: has_repayment_problem
+        description: Ground-truth validation flag - true if customer has any missed or defaulted payment.
+        tests:
+          - not_null
