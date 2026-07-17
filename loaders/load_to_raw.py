@@ -32,13 +32,12 @@ def create_schemas(engine):
         'fintech_accounts', 'fintech_cards', 'fintech_loans',
         'fintech_transactions', 'observability'
     ]
-    with engine.connect() as conn:
+    with engine.begin() as conn:
         for schema in schemas:
             conn.execute(
                 text(f'CREATE SCHEMA IF NOT EXISTS {schema}')
             )
-        conn.commit()
-    print(f"✓ Created {len(schemas)} schemas")
+    print(f"Created {len(schemas)} schemas")
 
 
 # ── Load CSV to PostgreSQL ───────────────────────────────────────
@@ -53,6 +52,17 @@ def load_csv(
         print(f"  ⚠ File not found: {filepath}")
         return 0
 
+    # Truncate instead of drop, so dependent dbt views survive re-runs.
+    with engine.begin() as conn:
+        exists = conn.execute(text(f"""
+            SELECT EXISTS (
+                SELECT 1 FROM information_schema.tables
+                WHERE table_schema = '{schema}' AND table_name = '{table}'
+            )
+        """)).scalar()
+        if exists:
+            conn.execute(text(f'TRUNCATE TABLE "{schema}"."{table}"'))
+
     total = 0
     for chunk in pd.read_csv(filepath, chunksize=chunk_size):
         chunk['_loaded_at'] = datetime.now()
@@ -60,20 +70,20 @@ def load_csv(
             table,
             engine,
             schema=schema,
-            if_exists='replace' if total == 0 else 'append',
+            if_exists='append',
             index=False,
             method='multi'
         )
         total += len(chunk)
 
-    print(f"  ✓ {schema}.{table}: {total:,} rows")
+    print(f"{schema}.{table}: {total:,} rows")
     return total
 
 
 # ── PaySim Transaction Loader (sample only) ──────────────────────
 def load_paysim_sample(engine, filepath: str, sample_size: int = 100000):
     if not os.path.exists(filepath):
-        print(f"  ⚠ PaySim file not found: {filepath}")
+        print(f"PaySim file not found: {filepath}")
         return 0
 
     print(f"  Loading PaySim sample ({sample_size:,} rows)...")
@@ -96,16 +106,26 @@ def load_paysim_sample(engine, filepath: str, sample_size: int = 100000):
     ]
     df['_loaded_at'] = datetime.now()
 
+    with engine.begin() as conn:
+        exists = conn.execute(text(f"""
+            SELECT EXISTS (
+                SELECT 1 FROM information_schema.tables
+                WHERE table_schema = 'fintech_transactions' AND table_name = 'transactions'
+            )
+        """)).scalar()
+        if exists:
+            conn.execute(text('TRUNCATE TABLE "fintech_transactions"."transactions"'))
+
     df.to_sql(
         'transactions',
         engine,
         schema='fintech_transactions',
-        if_exists='replace',
+        if_exists='append',
         index=False,
         method='multi',
         chunksize=5000
     )
-    print(f"  ✓ fintech_transactions.transactions: {len(df):,} rows")
+    print(f"fintech_transactions.transactions: {len(df):,} rows")
     return len(df)
 
 
@@ -172,7 +192,7 @@ def run_loader():
     )
 
     print("\n" + "="*50)
-    print("✅ All data loaded into PostgreSQL!")
+    print("All data loaded into PostgreSQL!")
     print("="*50 + "\n")
 
 

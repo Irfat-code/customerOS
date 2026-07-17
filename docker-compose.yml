@@ -9,6 +9,7 @@ x-airflow-common: &airflow-common
     AIRFLOW__CORE__EXECUTOR: LocalExecutor
     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@airflow_db:5432/airflow
     AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+    AIRFLOW__WEBSERVER__SECRET_KEY: 'customeros_dev_secret_key_change_in_prod'
     RAW_HOST: raw_db
     RAW_PORT: 5432
     RAW_DB: customeros_raw
