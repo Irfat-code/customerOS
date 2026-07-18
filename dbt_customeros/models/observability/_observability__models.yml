@@ -1,0 +1,20 @@
+version: 2
+
+models:
+  - name: obs_row_counts
+    description: Snapshot of row counts across all monitored raw tables.
+    columns:
+      - name: table_name
+        tests:
+          - not_null
+      - name: row_count
+        tests:
+          - not_null
+
+  - name: obs_null_rates
+    description: >
+      Null-rate monitoring on key identifier and foreign-key columns.
+    columns:
+      - name: null_rate_pct
+        tests:
+          - not_null

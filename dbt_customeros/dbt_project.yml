@@ -28,3 +28,6 @@ models:
     marts:
       +materialized: table
       +schema: marts
+    observability:
+      +materialized: table
+      +schema: observability

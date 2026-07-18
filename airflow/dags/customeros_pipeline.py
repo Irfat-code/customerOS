@@ -64,5 +64,31 @@ with DAG(
             f"--project-dir {DBT_PROJECT_DIR} --profiles-dir {DBT_PROFILES_DIR}"
         ),
     )
+    dbt_source_freshness = BashOperator(
+        task_id="dbt_source_freshness",
+        bash_command=(
+            f"dbt source freshness "
+            f"--project-dir {DBT_PROJECT_DIR} --profiles-dir {DBT_PROFILES_DIR}"
+        ),
+    )
 
-    load_raw_data >> dbt_run_staging >> dbt_run_intelligence >> dbt_run_customer_360 >> dbt_test_all
+    dbt_snapshot = BashOperator(
+        task_id="dbt_snapshot",
+        bash_command=(
+            f"dbt snapshot "
+            f"--project-dir {DBT_PROJECT_DIR} --profiles-dir {DBT_PROFILES_DIR}"
+        ),
+    )
+
+    dbt_run_observability = BashOperator(
+        task_id="dbt_run_observability",
+        bash_command=(
+            f"dbt run --select observability "
+            f"--project-dir {DBT_PROJECT_DIR} --profiles-dir {DBT_PROFILES_DIR}"
+        ),
+    )
+
+    load_raw_data >> [dbt_source_freshness, dbt_run_staging, dbt_snapshot]
+    dbt_run_staging >> dbt_run_intelligence >> dbt_run_customer_360
+    [dbt_run_intelligence, dbt_snapshot] >> dbt_run_observability
+    [dbt_run_customer_360, dbt_run_observability] >> dbt_test_all

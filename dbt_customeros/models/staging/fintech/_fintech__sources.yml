@@ -5,20 +5,44 @@ sources:
     schema: fintech_accounts
     tables:
       - name: customers
+        loaded_at_field: _loaded_at
+        freshness:
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 72, period: hour}
       - name: accounts
+        loaded_at_field: _loaded_at
+        freshness:
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 72, period: hour}
 
   - name: fintech_cards
     schema: fintech_cards
     tables:
       - name: cards
+        loaded_at_field: _loaded_at
+        freshness:
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 72, period: hour}
 
   - name: fintech_loans
     schema: fintech_loans
     tables:
       - name: loans
+        loaded_at_field: _loaded_at
+        freshness:
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 72, period: hour}
       - name: repayments
+        loaded_at_field: _loaded_at
+        freshness:
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 72, period: hour}
 
   - name: fintech_transactions
     schema: fintech_transactions
     tables:
       - name: transactions
+        loaded_at_field: _loaded_at
+        freshness:
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 72, period: hour}
